@@ -1,8 +1,13 @@
-name: iOS → TestFlight
+name: iOS → IPA
 
 # GitHub 웹에서 Actions 탭 → "iOS → TestFlight" → Run workflow 버튼으로 실행
 on:
   workflow_dispatch:
+    inputs:
+      upload:
+        description: "App Store Connect(TestFlight)에도 바로 업로드"
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -55,14 +60,15 @@ jobs:
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive | tail -n 60
 
-      - name: Upload to App Store Connect
+      - name: Export IPA (and upload if checked)
         run: |
+          DEST=export; [ "${{ inputs.upload }}" = "true" ] && DEST=upload
           cat > "$RUNNER_TEMP/export.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
-            <key>destination</key><string>upload</string>
+            <key>destination</key><string>$DEST</string>
             <key>teamID</key><string>$TEAM_ID</string>
             <key>signingStyle</key><string>automatic</string>
             <key>manageAppVersionAndBuildNumber</key><false/>
@@ -76,4 +82,10 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
-          echo "Uploaded build ${{ github.run_number }}. It shows up in TestFlight after Apple finishes processing (10–30 min)."
+          ls -la "$RUNNER_TEMP/export" || true
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !inputs.upload }}
+        with:
+          name: rolly-ipa
+          path: ${{ runner.temp }}/export/*.ipa

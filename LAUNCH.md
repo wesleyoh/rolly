@@ -66,7 +66,11 @@
 5. 출시 후 `app-ads.txt` 등록 (방법은 그때 안내할게요)
 
 ## 5. 빌드와 배포: Mac 없이 GitHub에서
-`.github/workflows/ios-testflight.yml` 파일이 GitHub의 Mac 서버에서 빌드하고 TestFlight에 올려줘요.
+GitHub → **Actions** 탭에서 버튼 하나로 결과물을 뽑아요. 끝나면 실행 화면 맨 아래 **Artifacts**에서 다운로드할 수 있어요.
+- **iOS → IPA:** `rolly-ipa` (`upload`에 체크하면 TestFlight로 바로 업로드)
+- **Android → AAB:** `rolly-aab`
+
+### iOS 시크릿
 
 GitHub 저장소의 **Settings → Secrets and variables → Actions**에 다음 4개를 넣어주세요.
 | 이름 | 값을 찾는 곳 |
@@ -79,8 +83,27 @@ GitHub 저장소의 **Settings → Secrets and variables → Actions**에 다음
 그다음 순서:
 1. App Store Connect에서 새 앱을 만들 때 번들 ID `com.rollygame.oneline`으로 등록
    - developer.apple.com → Identifiers에서 먼저 만들어야 할 수도 있어요
-2. GitHub → Actions → "iOS → TestFlight" → **Run workflow**
+2. GitHub → Actions → "iOS → IPA" → **Run workflow**
 3. 20~30분 뒤 TestFlight에 빌드가 올라오면 폰에서 테스트 → 심사 제출
+
+### Android 시크릿
+**1단계: 업로드 키 만들기 (Mac 터미널에서 한 번만)**
+```
+keytool -genkeypair -v -keystore rolly-upload.jks -alias rolly -keyalg RSA -keysize 2048 -validity 10000
+```
+이 `.jks` 파일과 비밀번호는 잃어버리면 안 되니까 따로 백업해 두세요.
+
+**2단계: 저장소 Secrets에 4개 넣기**
+| 이름 | 값 |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | 아래 명령어를 실행하면 클립보드에 복사돼요. 그대로 붙여넣기 |
+| `ANDROID_KEYSTORE_PASSWORD` | 키를 만들 때 정한 비밀번호 |
+| `ANDROID_KEY_ALIAS` | `rolly` |
+| `ANDROID_KEY_PASSWORD` | 키 비밀번호 (보통 위와 같음) |
+
+```
+base64 -i rolly-upload.jks | pbcopy
+```
 
 ## 6. 홍보 플랜
 **출시 2주 전부터 숏폼 (TikTok, Reels, Shorts) 하루 1개**
