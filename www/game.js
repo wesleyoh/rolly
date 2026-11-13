@@ -43,7 +43,7 @@ const STR = {
     shareTitle: n => `Rolly #${n} ✏️`, shareTry: n => `(${n})`, shareStreak: n => `🔥 ${n}-day streak`, shareCta: 'Can you solve it with one line?',
     coins: 'Coins', themes: 'Themes', themeNames: { notebook: 'Notebook', space: 'Neon Space', zombie: 'Zombie Night' },
     buy: n => `Unlock for 🪙 ${n}?`, buyBtn: 'Unlock', cancel: 'Not now', notEnough: (n, h) => `Need 🪙 ${n} (you have ${h})`,
-    double: n => `Watch ad: +${n} 🪙 more`, earned: n => `+${n} 🪙`, themeOn: n => `${n} theme on!`, onlyNotebook: 'Skins show in the Notebook theme',
+    double: n => `Watch ad: +${n} 🪙 more`, earned: n => `+${n} 🪙`, themeOn: n => `${n} theme on!`, starsInfo: 'Earn ★ in stages: clear it, grab the candy, save ink (max 3 each).', onlyNotebook: 'Skins show in the Notebook theme',
     loading: 'Drawing…',
   },
   ko: {
@@ -70,7 +70,7 @@ const STR = {
     shareTitle: n => `또르르 #${n} ✏️`, shareTry: n => `(${n}번)`, shareStreak: n => `🔥 ${n}일 연속`, shareCta: '너도 선 하나로 풀 수 있어?',
     coins: '코인', themes: '테마', themeNames: { notebook: '공책', space: '네온 우주', zombie: '좀비의 밤' },
     buy: n => `🪙 ${n}으로 열까요?`, buyBtn: '열기', cancel: '나중에', notEnough: (n, h) => `🪙 ${n}개가 필요해요 (보유 ${h})`,
-    double: n => `광고 보고 🪙 ${n} 더 받기`, earned: n => `+${n} 🪙`, themeOn: n => `${n} 테마 적용!`, onlyNotebook: '스킨은 공책 테마에서 보여요',
+    double: n => `광고 보고 🪙 ${n} 더 받기`, earned: n => `+${n} 🪙`, themeOn: n => `${n} 테마 적용!`, starsInfo: '★ 별은 스테이지에서 모아요: 클리어, 별사탕, 잉크 절약 (스테이지마다 최대 3개)', onlyNotebook: '스킨은 공책 테마에서 보여요',
     loading: '그리는 중…',
   },
   ja: {
@@ -97,7 +97,7 @@ const STR = {
     shareTitle: n => `コロリン #${n} ✏️`, shareTry: n => `(${n}回)`, shareStreak: n => `🔥 ${n}日連続`, shareCta: '一本線で解けるかな？',
     coins: 'コイン', themes: 'テーマ', themeNames: { notebook: 'ノート', space: 'ネオン宇宙', zombie: 'ゾンビの夜' },
     buy: n => `🪙 ${n} で解放する？`, buyBtn: '解放', cancel: 'あとで', notEnough: (n, h) => `🪙 ${n} 必要です（所持 ${h}）`,
-    double: n => `広告を見て 🪙 ${n} 追加`, earned: n => `+${n} 🪙`, themeOn: n => `${n} テーマ適用！`, onlyNotebook: 'スキンはノートテーマで表示されます',
+    double: n => `広告を見て 🪙 ${n} 追加`, earned: n => `+${n} 🪙`, themeOn: n => `${n} テーマ適用！`, starsInfo: '★ はステージで集めよう：クリア・こんぺいとう・インク節約（各最大3個）', onlyNotebook: 'スキンはノートテーマで表示されます',
     loading: 'えがいてる…',
   },
 };
@@ -500,6 +500,7 @@ function th() { return THEMES[prog.theme] && prog.themes.includes(prog.theme) ? 
 function pal() { return PAL[th()]; }
 function applyTheme() {
   const t = th(); document.documentElement.dataset.gtheme = t;
+  const cs = document.querySelector('meta[name=color-scheme]'); if (cs) cs.content = t === 'notebook' ? 'only light' : 'only dark';
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = { notebook: '#fbf7ec', space: '#0b1028', zombie: '#141a15' }[t];
   const SB = plugin('StatusBar'); try { if (SB) SB.setStyle({ style: t === 'notebook' ? 'LIGHT' : 'DARK' }); } catch (e) { }
 }
@@ -699,7 +700,7 @@ function drawParts(c, g, t) {
     else if (p.t === 'dust') { c.fillStyle = p.c; c.globalAlpha = a * .6; c.beginPath(); c.arc(p.x, p.y, p.r * (1.8 - a * .8), 0, 7); c.fill(); }
     else if (p.t === 'spark') { c.save(); if (glow) { c.shadowColor = p.c; c.shadowBlur = 8; } c.strokeStyle = p.c; c.lineWidth = 2; c.lineCap = 'round'; line2(c, p.x, p.y, p.x - p.vx * .025, p.y - p.vy * .025); c.restore(); }
     else if (p.t === 'ring') { c.save(); if (glow) { c.shadowColor = p.c; c.shadowBlur = 10; } c.strokeStyle = p.c; c.lineWidth = 3 * a + .5; c.beginPath(); c.arc(p.x, p.y, p.max * (1 - a), 0, 7); c.stroke(); c.restore(); }
-    else if (p.t === 'text') { c.fillStyle = p.c; c.font = "700 22px Gaegu, Yomogi, sans-serif"; c.textAlign = 'center'; c.fillText(p.text, p.x, p.y); }
+    else if (p.t === 'text') { c.fillStyle = p.c; c.font = "700 20px Fredoka, Jua, 'M PLUS Rounded 1c', sans-serif"; c.textAlign = 'center'; c.fillText(p.text, p.x, p.y); }
     else if (p.t === 'drop') { c.fillStyle = p.c; c.beginPath(); c.arc(p.x, p.y, 2.2, 0, 7); c.fill(); }
   }
   c.globalAlpha = 1;
@@ -860,12 +861,12 @@ function renderWorlds() {
 }
 
 // ---- 도감 ----
-function condText(need) { if (!need) return S.cond.free; const [k, n] = need; return S.cond[k](n); }
+function condText(need) { if (!need) return S.cond.free; const [k, n] = need; if (k === 'stars') return `★ ${Math.min(totalStars(), n)} / ${n}`; if (k === 'streak') return `🔥 ${Math.min(prog.bestStreak, n)} / ${n}`; if (k === 'daily') return `📅 ${Math.min(prog.dailyClears, n)} / ${n}`; return S.cond[k](n); }
 function renderCollection() {
   document.querySelector('#collection .tb-title').textContent = S.collection;
   $('colCoins').textContent = '🪙 ' + (prog.coins || 0);
   $('themeSec').textContent = S.themes; $('skinSec').textContent = S.skins.basic; $('penSec').textContent = LANG === 'ko' ? '펜' : LANG === 'ja' ? 'ペン' : 'Pens';
-  $('skinNote').textContent = th() === 'notebook' ? '' : S.onlyNotebook;
+  $('skinNote').textContent = th() === 'notebook' ? S.starsInfo : S.onlyNotebook;
   $('themeGrid').innerHTML = Object.entries(THEMES).map(([id, tm]) => { const own = prog.themes.includes(id), on = th() === id; return `<button class="item ${on ? 'on' : ''} ${own ? '' : 'lock'}" data-theme="${id}"><canvas width="128" height="128"></canvas>${S.themeNames[id]}<small>${on ? S.selected : own ? '' : '🪙 ' + tm.cost}</small></button>`; }).join('');
   $('themeGrid').querySelectorAll('.item').forEach(b => {
     const id = b.dataset.theme, c = b.querySelector('canvas').getContext('2d'), keep = prog.theme, keepOwn = prog.themes;
