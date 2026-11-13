@@ -645,7 +645,7 @@ function openSettings() {
   openSheet(`<div class="big">${S.settings}</div>
     <div class="row">${S.sound}<button class="tog ${prog.snd ? 'on' : ''}" id="tSnd" aria-label="${S.sound}"></button></div>
     <div class="row">${S.haptics}<button class="tog ${prog.hap ? 'on' : ''}" id="tHap" aria-label="${S.haptics}"></button></div>
-    <div class="fine">${S.version} 1.0.0 · ${S.privacy}: rolly-game.github.io/privacy</div>
+    <div class="fine">${S.version} 1.0.0 · ${S.privacy}: wesleyoh.github.io/rolly/privacy.html</div>
     <button class="btn" id="sClose">OK</button>`);
   $('tSnd').onclick = e => { prog.snd = !prog.snd; save(); e.target.classList.toggle('on', prog.snd); SFX.click(); };
   $('tHap').onclick = e => { prog.hap = !prog.hap; save(); e.target.classList.toggle('on', prog.hap); haptic('light'); };
