@@ -59,10 +59,11 @@
 ### 애드몹 셋업 (해주실 일)
 1. admob.google.com에서 앱 2개 추가: iOS, Android (아직 스토어에 없다고 선택)
 2. 앱마다 광고 단위 2개 만들기: **보상형**, **전면**
-3. 아래 6개 ID를 저한테 알려주세요. 제가 코드의 테스트 ID를 실제 ID로 교체할게요.
+3. ✅ 완료: 실제 ID 적용됨 (게임 코드 `www/game.js`의 CFG.ads, iOS `Info.plist`, Android `AndroidManifest.xml`).
+   테스트 광고: 설정 화면의 버전 글씨를 7번 탭하면 그 기기만 테스트 광고로 전환 (앱 재시작 필요).
    - 앱 ID 2개
    - 광고 단위 ID 4개
-4. 개인정보 처리방침 페이지: `docs/privacy.html` (GitHub Pages로 공개)
+4. 개인정보 처리방침: https://aftertenlabs.com/en/privacy/ (한국어 https://aftertenlabs.com/privacy/)
 5. 출시 후 `app-ads.txt` 등록 (방법은 그때 안내할게요)
 
 ## 5. 빌드와 배포: Mac 없이 GitHub에서

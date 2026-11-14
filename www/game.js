@@ -7,13 +7,22 @@
 const CFG = {
   appUrl: '',                    // App Store / Play 링크 (출시 후 입력)
   epoch: Date.UTC(2026, 10, 12), // 오늘의 문제 #1 날짜
-  ads: {                         // AdMob 단위 ID (지금은 구글 공식 테스트 ID)
-    ios:     { rewarded: 'ca-app-pub-3940256099942544/1712485313', interstitial: 'ca-app-pub-3940256099942544/4411468910' },
-    android: { rewarded: 'ca-app-pub-3940256099942544/5224354917', interstitial: 'ca-app-pub-3940256099942544/1033173712' },
-    testing: true,
-    interstitialFromStage: 8,    // 이 스테이지 전까지는 전면광고 없음
-    interstitialEvery: 3,        // 스테이지 클리어 n번마다 1번
-    interstitialMinGapSec: 150,  // 전면광고 최소 간격
+  privacyUrl: { ko: 'https://aftertenlabs.com/privacy/', en: 'https://aftertenlabs.com/en/privacy/' },
+  ads: {
+    // 출시용 실제 ID (앱 ID ~ 는 네이티브 설정 파일에, 광고 단위 ID / 는 여기에)
+    live: {
+      ios:     { rewarded: 'ca-app-pub-3904134242261624/9601814305', interstitial: 'ca-app-pub-3904134242261624/6784079279' },
+      android: { rewarded: 'ca-app-pub-3904134242261624/5415157287', interstitial: 'ca-app-pub-3904134242261624/2054496773' },
+    },
+    // 구글 공식 테스트 ID (개발·테스트용)
+    test: {
+      ios:     { rewarded: 'ca-app-pub-3940256099942544/1712485313', interstitial: 'ca-app-pub-3940256099942544/4411468910' },
+      android: { rewarded: 'ca-app-pub-3940256099942544/5224354917', interstitial: 'ca-app-pub-3940256099942544/1033173712' },
+    },
+    forceTest: false,              // true로 빌드하면 모든 기기에서 테스트 광고
+    interstitialFromStage: 8,
+    interstitialEvery: 3,
+    interstitialMinGapSec: 150,
   },
 };
 
@@ -35,7 +44,7 @@ const STR = {
     share: 'Share result', shared: 'Copied! Paste it to your friends', nextIn: t => `Next puzzles in ${t}`,
     dailyDone: 'Daily complete!', streak: 'Streak', best: 'Best', played: 'Days', toStageMode: 'Play stages',
     noHints: 'No hints left', watchAd: 'Watch an ad for +1 hint', hintsEarn: 'Earn hints by finishing the daily puzzles.',
-    sound: 'Sound', haptics: 'Vibration', privacy: 'Privacy policy', version: 'Version',
+    sound: 'Sound', haptics: 'Vibration', privacyChoices: 'Privacy choices', privacy: 'Privacy policy', version: 'Version',
     getAd: 'Watch ad', unlocked: n => `New unlock: ${n}!`, selected: 'Equipped', how: c => c,
     skins: { basic: 'Rolly', peach: 'Peach', mint: 'Mint', cat: 'Kitty', melon: 'Melon', ninja: 'Ninja', king: 'King' },
     pens: { graphite: 'Pencil', blue: 'Blue pen', red: 'Red pen', marker: 'Highlighter', rainbow: 'Rainbow' },
@@ -62,7 +71,7 @@ const STR = {
     share: '결과 공유하기', shared: '복사됐어요! 친구한테 붙여넣기', nextIn: t => `다음 문제까지 ${t}`,
     dailyDone: '오늘의 문제 완료!', streak: '연속', best: '최고', played: '참여', toStageMode: '스테이지 하러 가기',
     noHints: '힌트가 없어요', watchAd: '광고 보고 힌트 +1', hintsEarn: '오늘의 문제를 다 풀면 힌트를 받아요.',
-    sound: '소리', haptics: '진동', privacy: '개인정보 처리방침', version: '버전',
+    sound: '소리', haptics: '진동', privacyChoices: '개인정보 선택', privacy: '개인정보 처리방침', version: '버전',
     getAd: '광고 보기', unlocked: n => `새로 열림: ${n}!`, selected: '장착 중', how: c => c,
     skins: { basic: '또르', peach: '복숭아', mint: '민트', cat: '냥또르', melon: '수박', ninja: '닌자', king: '왕또르' },
     pens: { graphite: '연필', blue: '파란 볼펜', red: '빨간 펜', marker: '형광펜', rainbow: '무지개' },
@@ -89,7 +98,7 @@ const STR = {
     share: '結果をシェア', shared: 'コピーしました！友だちに貼ってね', nextIn: t => `次の問題まで ${t}`,
     dailyDone: '今日の問題クリア！', streak: '連続', best: '最高', played: '参加', toStageMode: 'ステージで遊ぶ',
     noHints: 'ヒントがありません', watchAd: '広告を見てヒント+1', hintsEarn: '今日の問題を全部解くとヒントがもらえます。',
-    sound: 'サウンド', haptics: '振動', privacy: 'プライバシーポリシー', version: 'バージョン',
+    sound: 'サウンド', haptics: '振動', privacyChoices: 'プライバシー設定', privacy: 'プライバシーポリシー', version: 'バージョン',
     getAd: '広告を見る', unlocked: n => `新しく解放：${n}！`, selected: '装備中', how: c => c,
     skins: { basic: 'コロリン', peach: 'もも', mint: 'ミント', cat: 'ねこ', melon: 'スイカ', ninja: 'ニンジャ', king: 'キング' },
     pens: { graphite: 'えんぴつ', blue: '青ペン', red: '赤ペン', marker: '蛍光ペン', rainbow: 'にじいろ' },
@@ -750,22 +759,30 @@ async function shareText(text) {
 }
 
 // AdMob (@capacitor-community/admob). 웹/미리보기에서는 자동으로 꺼짐.
+// 테스트 광고: CFG.ads.forceTest 또는 설정 화면의 버전 글씨를 7번 탭 (기기별로 저장)
 const Ads = {
-  ready: false, lastInter: 0,
+  ready: false, lastInter: 0, privacyRequired: false,
+  testing() { return CFG.ads.forceTest || store.get('testAds', false); },
+  ids() { const p = Cap() && Cap().getPlatform ? Cap().getPlatform() : 'ios'; const set = this.testing() ? CFG.ads.test : CFG.ads.live; return set[p] || set.ios; },
   async init() {
     const A = plugin('AdMob'); if (!A) return;
     try {
-      await A.initialize({ initializeForTesting: CFG.ads.testing });
-      try { const ci = await A.requestConsentInfo(); if (ci.isConsentFormAvailable && ci.status === 'REQUIRED') await A.showConsentForm(); } catch (e) { }
+      // 1) GDPR 동의 (UMP)  2) iOS 추적 허용(ATT)  3) 광고 SDK 시작
+      let info = null;
+      try { info = await A.requestConsentInfo(); if (info.isConsentFormAvailable && info.status === 'REQUIRED') info = await A.showConsentForm(); } catch (e) { }
+      this.privacyRequired = !!info && info.privacyOptionsRequirementStatus === 'REQUIRED';
       try { const st = await A.trackingAuthorizationStatus(); if (st.status === 'notDetermined') await A.requestTrackingAuthorization(); } catch (e) { }
+      if (info && info.canRequestAds === false) return;
+      await A.initialize({ initializeForTesting: this.testing() });
       this.ready = true; this.preload();
     } catch (e) { }
   },
-  ids() { const p = Cap() && Cap().getPlatform ? Cap().getPlatform() : 'ios'; return CFG.ads[p] || CFG.ads.ios; },
+  async privacyForm() { const A = plugin('AdMob'); if (!A) return; try { await A.showPrivacyOptionsForm(); } catch (e) { } },
   async preload() {
     const A = plugin('AdMob'); if (!A || !this.ready) return;
-    try { await A.prepareRewardVideoAd({ adId: this.ids().rewarded, isTesting: CFG.ads.testing }); } catch (e) { }
-    try { await A.prepareInterstitial({ adId: this.ids().interstitial, isTesting: CFG.ads.testing }); } catch (e) { }
+    const t = this.testing();
+    try { await A.prepareRewardVideoAd({ adId: this.ids().rewarded, isTesting: t }); } catch (e) { }
+    try { await A.prepareInterstitial({ adId: this.ids().interstitial, isTesting: t }); } catch (e) { }
   },
   available() { return this.ready; },
   async rewarded() {
@@ -897,8 +914,12 @@ function openSettings() {
   openSheet(`<div class="big">${S.settings}</div>
     <div class="row">${S.sound}<button class="tog ${prog.snd ? 'on' : ''}" id="tSnd" aria-label="${S.sound}"></button></div>
     <div class="row">${S.haptics}<button class="tog ${prog.hap ? 'on' : ''}" id="tHap" aria-label="${S.haptics}"></button></div>
-    <div class="fine">${S.version} 1.0.0 · ${S.privacy}: wesleyoh.github.io/rolly/privacy.html</div>
+    ${Ads.privacyRequired ? `<button class="btn" id="sPriv">${S.privacyChoices}</button>` : ''}
+    <div class="fine">${S.privacy}: ${(LANG === 'ko' ? CFG.privacyUrl.ko : CFG.privacyUrl.en).replace('https://', '')}</div>
+    <div class="fine" id="sVer">${S.version} 1.0.0${Ads.testing() ? ' · TEST ADS' : ''}</div>
     <button class="btn" id="sClose">OK</button>`);
+  if ($('sPriv')) $('sPriv').onclick = () => { closeSheet(); Ads.privacyForm(); };
+  let taps = 0; $('sVer').onclick = () => { if (++taps < 7) return; taps = 0; const on = !store.get('testAds', false); store.set('testAds', on); $('sVer').textContent = `${S.version} 1.0.0${on ? ' · TEST ADS' : ''}`; toast(on ? 'Test ads ON (restart app)' : 'Test ads OFF (restart app)'); };
   $('tSnd').onclick = e => { prog.snd = !prog.snd; save(); e.target.classList.toggle('on', prog.snd); SFX.click(); };
   $('tHap').onclick = e => { prog.hap = !prog.hap; save(); e.target.classList.toggle('on', prog.hap); haptic('light'); };
   $('sClose').onclick = closeSheet;
